@@ -368,7 +368,7 @@ public class DomBotEditor extends EscapeDialog implements ActionListener {
 		StringBuilder theTypeString=null;
 		if (myBotTypeList!=null){
 			myTypes=new HashSet<DomBotType>();
-			for (Object botType : myBotTypeList.getSelectedValues()){
+			for (Object botType : myBotTypeList.getSelectedValuesList()){
 				myTypes.add((DomBotType) botType);
 			}
 		}
@@ -386,7 +386,11 @@ public class DomBotEditor extends EscapeDialog implements ActionListener {
         	}
         	theTypeString.append(botType);
         }
-		return theTypeString.toString();
+        if (myTypes.size() == 0) {
+		    return "";
+        } else {
+            return theTypeString.toString();
+        }
 	}
 
     private JList getTypeList() {
