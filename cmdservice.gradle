@@ -1,0 +1,24 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+mainClassName = 'evanxq.DomCmdService'
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java.srcDirs = ['src/main/java']
+        output.classesDir = 'target/classes'
+    }
+}
+
+dependencies {
+    compile group: 'jfree', name: 'jcommon', version:'1.0.15'
+    compile group: 'jfree', name: 'jfreechart', version:'1.0.12'
+    compile group: 'log4j', name: 'log4j', version:'1.2.17'
+}
