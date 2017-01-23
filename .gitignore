@@ -1,7 +1,8 @@
 target/
-.idea/
-*.iml
-.gradle/
-gradlew
-gradlew.bat
-gradle/
+*/.idea/
+*/*.iml
+*/.gradle/
+*/gradlew
+*/gradlew.bat
+*/gradle/
+*/__pycache__/

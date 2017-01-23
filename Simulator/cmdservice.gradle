@@ -13,7 +13,9 @@ repositories {
 sourceSets {
     main {
         java.srcDirs = ['src/main/java']
+        resources.srcDirs = ['src/main/java']
         output.classesDir = 'target/classes'
+        output.resourcesDir = 'target/classes'
     }
 }
 

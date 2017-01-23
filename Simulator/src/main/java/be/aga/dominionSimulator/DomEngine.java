@@ -70,14 +70,21 @@ public class DomEngine {
 	private int emptyPilesEndingCount=0;
 	private StatusBar myStatusBar;
 	private DomGameFrame myGameFrame;
+	private boolean showUI;
     
-    public DomEngine () {
-		loadSystemBots();
-		createSimpleCardStrategiesBots();
-		loadCurrentUserBots();
-		myGui = new DomGui( this );
-		myGui.setVisible(true);
+    public DomEngine (boolean showGUI) {
+    	showUI = showGUI;
+    	if (showGUI) {
+			loadSystemBots();
+			createSimpleCardStrategiesBots();
+			loadCurrentUserBots();
+			myGui = new DomGui(this);
+			myGui.setVisible(true);
+		}
     }
+    public DomEngine () {
+    	this(true);
+	}
     
     private void createSimpleCardStrategiesBots() {
         for (DomCardName theCard : DomCardName.getSafeValues()) {
@@ -107,6 +114,7 @@ public class DomEngine {
 			rdr.parse(src);
 			bots = saxHandler.getBots();
 		} catch (Exception e) {
+			if(showUI)
 			JOptionPane.showMessageDialog(myGui, "You'll need to download Java 1.6 at www.java.com to run this program!!!");
 		}
 		Collections.sort( bots );
@@ -122,6 +130,7 @@ public class DomEngine {
 				input.close();
 			} catch (IOException e1) {
 				LOGGER.error("failed to load current user bots", e1);
+				if(showUI)
 				JOptionPane.showMessageDialog(myGui,
 						"Error Reading File", "error",
 						JOptionPane.ERROR_MESSAGE);
@@ -142,6 +151,7 @@ public class DomEngine {
 			output.close();
 		} catch (IOException e1) {
 			LOGGER.error("failed to save current user bots", e1);
+			if(showUI)
 			JOptionPane.showMessageDialog(myGui,
 					"Error Writing File", "error",
 					JOptionPane.ERROR_MESSAGE);
@@ -162,12 +172,14 @@ public class DomEngine {
 			return bots.get(0);
 		} catch (Exception e) {
 			e.printStackTrace();
+			if(showUI)
 			JOptionPane.showMessageDialog(myGui, "Bot creation failed! Make sure you have a valid XML in your clipboard", "", JOptionPane.ERROR_MESSAGE);
 		}
 		return null;
 	}
 
 	private void showCharts() {
+    	if(!showUI) return;
       myGui.setBarChart(new DomBarChart(players));
       myGui.setVPLineChart(new DomLineChart(players, "VP"));
       myGui.setMoneyLineChart(new DomLineChart(players, "Money"));
@@ -190,19 +202,21 @@ public class DomEngine {
 
         if (NUMBER_OF_GAMES > 1) {
             for (DomPlayer thePlayer : players) {
-//                myGui.showWinPercentage(thePlayer, thePlayer.getWins()*100/(theTotalWins +theTotalTies/2));
-                myGui.showWinPercentage(thePlayer, (int) (thePlayer.getWins() * 100 / NUMBER_OF_GAMES));
-//                myGui.showTiePercentage(thePlayer.getTies()*100/(theTotalWins +theTotalTies/2));
-                myGui.showAverageTurns(theAverageTurns);
-                myGui.show3EmptyPilesEndings(emptyPilesEndingCount / NUMBER_OF_GAMES * 100);
-                myGui.showTime(myTotalTime);
+            	if(showUI) {
+					// myGui.showWinPercentage(thePlayer, thePlayer.getWins()*100/(theTotalWins +theTotalTies/2));
+					myGui.showWinPercentage(thePlayer, (int) (thePlayer.getWins() * 100 / NUMBER_OF_GAMES));
+					// myGui.showTiePercentage(thePlayer.getTies()*100/(theTotalWins +theTotalTies/2));
+					myGui.showAverageTurns(theAverageTurns);
+					myGui.show3EmptyPilesEndings(emptyPilesEndingCount / NUMBER_OF_GAMES * 100);
+					myGui.showTime(myTotalTime);
+				}
 
                 LOGGER.info(thePlayer + " has " + thePlayer.getWins() * 100 / NUMBER_OF_GAMES + "% wins ("
                         + thePlayer.getWins() + ")"
                         + " and " + thePlayer.getTies() * 100 / NUMBER_OF_GAMES + "% ties ("
                         + thePlayer.getTies() + ")");
             }
-            myGui.showTiePercentage((int) (theTotalTies*100/NUMBER_OF_GAMES));
+            if(showUI) myGui.showTiePercentage((int) (theTotalTies*100/NUMBER_OF_GAMES));
             LOGGER.info("Empty Piles Endings : " + emptyPilesEndingCount / NUMBER_OF_GAMES * 100 + "%");
         }
     }
@@ -364,15 +378,16 @@ public class DomEngine {
 	}
 
 	public void deleteBot(DomPlayer selectedItem) {
-        bots.remove(selectedItem);		
-		myGui.refreshBotSelectors(null);
+        bots.remove(selectedItem);
+        if(showUI)
+			myGui.refreshBotSelectors(null);
 	}
 	
 	public void saveUserBots() {
 		JFileChooser fileChooser = new JFileChooser(myLastFile);
 		fileChooser.setFileFilter(getFileFilter());
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (fileChooser.showSaveDialog(myGui) == JFileChooser.APPROVE_OPTION) {
+		if (!showUI || fileChooser.showSaveDialog(myGui) == JFileChooser.APPROVE_OPTION) {
 			Writer output = null;
 			try {
 				String theWriteFile = fileChooser.getCurrentDirectory()
@@ -387,6 +402,7 @@ public class DomEngine {
 				output.write(getXMLForAllUserBots());
 				output.close();
 			} catch (IOException e1) {
+				if(showUI)
 				JOptionPane.showMessageDialog(myGui,
 						"Error Writing File", "error",
 						JOptionPane.ERROR_MESSAGE);
@@ -412,7 +428,7 @@ public class DomEngine {
 		JFileChooser fileChooser = new JFileChooser(myLastFile);
 		fileChooser.setFileFilter(getFileFilter());
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		if (fileChooser.showOpenDialog(myGui) == JFileChooser.APPROVE_OPTION) {
+		if (!showUI || fileChooser.showOpenDialog(myGui) == JFileChooser.APPROVE_OPTION) {
 			Reader input = null;
 			try {
 				String theReadFile = fileChooser.getCurrentDirectory()
@@ -425,6 +441,7 @@ public class DomEngine {
 				loadUserBotsFromXML(new InputSource(input));
 				input.close();
 			} catch (IOException e1) {
+				if(showUI)
 				JOptionPane.showMessageDialog(myGui,
 						"Error Reading File", "error",
 						JOptionPane.ERROR_MESSAGE);
@@ -477,6 +494,7 @@ public class DomEngine {
 	}
 
 	public void setSelectedBot(Object selectedValue) {
+    	if(showUI)
 	  myGui.refreshBotSelectors((DomPlayer) selectedValue);	
 	}
 
