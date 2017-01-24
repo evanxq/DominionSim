@@ -2,6 +2,9 @@ import random
 import socket
 import time
 import subprocess
+import os
+import sys
+import platform
 from strategy import *
 
 mutation_rate = 0.005
@@ -112,10 +115,12 @@ class GenAlgTrainer:
 
 
 if __name__ == '__main__':
-    # start server
-    subprocess.Popen(['C:\\Program Files\\gradle-3.0\\bin\\gradle.bat',
-                      '-b', 'C:\\Users\\Evan\\git\\Dominion\\Simulator\\cmdservice.gradle', 'run'],
-                     stdout=subprocess.DEVNULL)
+    trainer_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+    sim_path = os.path.join(trainer_path, "..", "Simulator", "cmdservice.gradle")
+    gradle_command = 'gradle.bat' if str(platform.system()).lower() == 'windows' else 'gradle'
+
+    # start Java server process
+    subprocess.Popen([gradle_command, '-b', sim_path, 'run'], stdout=subprocess.DEVNULL)
 
     # train strategies
     trainer = GenAlgTrainer()
@@ -123,7 +128,7 @@ if __name__ == '__main__':
 
     # display results
     trainer.calc_fitnesses()
-    best_vec = max(trainer.vecs_fitnesses, key=lambda vf: vf[1])
+    best_vec, best_fitness = max(trainer.vecs_fitnesses, key=lambda vf: vf[1])
     time.sleep(0.1)
-    print("most wins of last round: %d out of %d" % (best_vec[1], matchups_per_fitness_calc * 10))
-    print(Strategy(best_vec[0]).xml())
+    print("most wins of last round: %d out of %d" % (best_fitness, matchups_per_fitness_calc * 10))
+    print(Strategy(best_vec).xml())
