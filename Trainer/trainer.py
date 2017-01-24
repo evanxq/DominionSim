@@ -6,7 +6,8 @@ from strategy import *
 
 mutation_rate = 0.005
 crossover_rate = 0.7
-pool_size = 40
+pool_size = 100
+matchups_per_fitness_calc = 10
 
 
 def mate(vec1, vec2):
@@ -56,7 +57,7 @@ class GenAlgTrainer:
                 pass
 
     def calc_fitnesses(self):
-        for _ in range(3):
+        for _ in range(matchups_per_fitness_calc):
             random.shuffle(self.vecs_fitnesses)
             tested = []
             while len(self.vecs_fitnesses) > 0:
@@ -111,15 +112,18 @@ class GenAlgTrainer:
 
 
 if __name__ == '__main__':
+    # start server
     subprocess.Popen(['C:\\Program Files\\gradle-3.0\\bin\\gradle.bat',
                       '-b', 'C:\\Users\\Evan\\git\\Dominion\\Simulator\\cmdservice.gradle', 'run'],
                      stdout=subprocess.DEVNULL)
 
+    # train strategies
     trainer = GenAlgTrainer()
-    trainer.train(200)
+    trainer.train(1000)
 
+    # display results
     trainer.calc_fitnesses()
     best_vec = max(trainer.vecs_fitnesses, key=lambda vf: vf[1])
     time.sleep(0.1)
-    print("most wins of last round: " + str(best_vec[1]))
+    print("most wins of last round: %d out of %d" % (best_vec[1], matchups_per_fitness_calc * 10))
     print(Strategy(best_vec[0]).xml())

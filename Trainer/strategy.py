@@ -50,7 +50,7 @@ class Strategy:
 
     def xml(self):
         out = '<player name="%s">' % self.name
-        for c in self.conditions:
+        for c in sorted(self.conditions, key=lambda c: c.priority):
             out += c.xml()
         out += '</player>'
         return out
